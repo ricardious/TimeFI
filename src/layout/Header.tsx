@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkMode, setIsDarkMode }) => {
                     alt='logo'
                     className='w-10 sm:w-14 md:w-16 lg:w-18 xl:w-20 transition-all duration-300 group-hover:scale-105'
                 />
-                <span className="text-base sm:text-lg md:hidden lg:block lg:text-lg xl:text-xl 2xl:text-2xl font-semibold ml-2 sm:ml-3 md:ml-4 lg:ml-5 xl:ml-6">
+                <span className="text-base sm:text-lg md:hidden lg:block lg:text-lg xl:text-xl 2xl:text-lg font-semibold ml-1">
                     FI Scheduler
                 </span>
             </Link>
@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkMode, setIsDarkMode }) => {
                     <li key={item} className='relative group'>
                         <a
                             href={`#${item.toLowerCase().replace(' ', '-')}`}
-                            className="relative block text-sm lg:text-base xl:text-lg transition-all duration-300 hover:text-blue-600 dark:hover:text-purple-600 group whitespace-nowrap"
+                            className="relative block text-sm lg:text-base xl:text-base  transition-all duration-300 hover:text-blue-600 dark:hover:text-purple-600 group whitespace-nowrap"
                         >
                             {item}
                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 dark:bg-purple-600 transition-all duration-300 group-hover:w-full" />
