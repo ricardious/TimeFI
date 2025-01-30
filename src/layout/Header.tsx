@@ -31,26 +31,26 @@ const Header: React.FC<HeaderProps> = ({ isDarkMode, setIsDarkMode }) => {
 
     return (
 
-        <nav className='w-full fixed px-4 xs:px-5 sm:px-6 md:px-8 lg:px-12 xl:px-[8%] 2xl:px-[12%] py-3 sm:py-4 flex justify-between items-center z-50'>
+        <nav className='w-full fixed px-4 sm:px-6 md:px-8 lg:px-12 xl:px-[8%] 2xl:px-[12%] py-3 sm:py-4 flex justify-between items-center z-50'>
             <GradientBackdrop />
             <Link to={routesConstants.HOME} className='flex items-center z-[1] group'>
                 <Img
                     src={Icons.logo}
                     alt='logo'
-                    className='w-10 xs:w-12 sm:w-14 md:w-16 lg:w-18 xl:w-20 transition-all duration-300 group-hover:scale-105'
+                    className='w-10 sm:w-14 md:w-16 lg:w-18 xl:w-20 transition-all duration-300 group-hover:scale-105'
                 />
-                <span className="text-base xs:text-lg sm:text-xl md:text-xl lg:text-2xl xl:text-3xl font-semibold ml-2 sm:ml-3">
+                <span className="text-base sm:text-lg md:hidden lg:block lg:text-lg xl:text-xl 2xl:text-2xl font-semibold ml-2 sm:ml-3 md:ml-4 lg:ml-5 xl:ml-6">
                     FI Scheduler
                 </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <ul className="hidden md:flex items-center gap-6 lg:gap-8 rounded-full px-12 py-3  backdrop-blur-md bg-white/50 dark:bg-black/50 shadow-sm z-[1]">
+            <ul className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8 rounded-full px-6 lg:px-8 xl:px-12 py-2 lg:py-3 backdrop-blur-md bg-white/50 dark:bg-black/50 shadow-sm z-[1]">
                 {['Inicio', 'Ver Horarios', 'Generar Horario', 'Mis Horarios', 'Acerca de'].map((item) => (
                     <li key={item} className='relative group'>
                         <a
                             href={`#${item.toLowerCase().replace(' ', '-')}`}
-                            className="relative block transition-all duration-300 hover:text-blue-600 dark:hover:text-purple-600 group"
+                            className="relative block text-sm lg:text-base xl:text-lg transition-all duration-300 hover:text-blue-600 dark:hover:text-purple-600 group whitespace-nowrap"
                         >
                             {item}
                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 dark:bg-purple-600 transition-all duration-300 group-hover:w-full" />
@@ -75,6 +75,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkMode, setIsDarkMode }) => {
                         className='w-6 dark:invert dark:brightness-75' />
                 </Link>
 
+
                 <Link
                     to={routesConstants.ROOT}
                     className='hidden lg:flex items-center gap-3 px-10 py-2.5 border border-gray-500 rounded-full ml-4'
@@ -86,6 +87,8 @@ const Header: React.FC<HeaderProps> = ({ isDarkMode, setIsDarkMode }) => {
                         className='w-5 dark:invert dark:brightness-75'
                     />
                 </Link>
+
+
                 <button className='block md:hidden ml-3' onClick={openMenu}>
                     <Img
                         src={Icons.menu}
