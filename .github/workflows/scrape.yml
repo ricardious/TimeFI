@@ -1,15 +1,13 @@
 name: Scrape USAC schedules
 
-on:
-  schedule:
-    - cron: "0 5 * * *" # todos los días a las 05:00 UTC
-  workflow_dispatch: # permite lanzarlo manualmente
+on: [workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
