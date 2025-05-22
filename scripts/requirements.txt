@@ -1,3 +1,2 @@
+aiohttp==3.11.18
 beautifulsoup4==4.13.4
-browser_cookie3==0.20.1
-Requests==2.32.3
