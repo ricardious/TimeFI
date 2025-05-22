@@ -16,12 +16,27 @@ jobs:
           python-version: "3.x"
       - name: Install deps
         run: |
-          pip install requests browser-cookie3 beautifulsoup4
-      - name: Run scraper
+          python -m pip install --upgrade pip
+          pip install -r scripts/requirements.txt
+      - name: Execute script
         run: |
-          python scraper.py --output public/schedules.json
+          python scripts/scrape_schedule.py --output public/schedules.json
       - name: Commit JSON
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Actualiza schedules.json"
-          file_pattern: public/schedules.json
+          commit_message: Update schedules.json
+        id: auto-commit-action
+
+      - name: Send Email
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Schedules updated"
+          body: "The schedules.json file has been updated."
+          to: castaneda.systems@gmail.com
+          from: "Ingeniería USAC Web Scraper"
+          content_type: text/html
