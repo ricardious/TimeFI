@@ -329,7 +329,7 @@ async def main():
     parser.add_argument(
         "--output",
         type=str,
-        default="public/schedules.json",
+        default="src/data/schedules.json",
         help="Nombre del archivo de salida",
     )
     parser.add_argument(
