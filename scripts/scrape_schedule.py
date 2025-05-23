@@ -9,20 +9,22 @@ from asyncio import Semaphore
 from typing import List, Dict, Optional, Tuple
 import logging
 
-# URLs
+# URLs Base
 BASE = "https://usuarios.ingenieria.usac.edu.gt"
-HORARIOS_URL = f"{BASE}/horarios/semestre/1"
-RESTRICCIONES_URL = f"{BASE}/restricciones"
 
 RESTRICTIONS_CACHE = {}
 
 
 class CourseProcessor:
-    def __init__(self, max_concurrent: int = 10, delay: float = 0.1):
+    def __init__(self, semester: int = 1, max_concurrent: int = 10, delay: float = 0.1):
+        self.semester = semester
         self.semaphore = Semaphore(max_concurrent)
         self.delay = delay
         self.session = None
         self.timeout = aiohttp.ClientTimeout(total=20, connect=10)
+
+        self.horarios_url = f"{BASE}/horarios/semestre/{semester}"
+        self.restricciones_url = f"{BASE}/restricciones"
 
     async def setup_session(self):
         connector = aiohttp.TCPConnector(
@@ -49,12 +51,16 @@ class CourseProcessor:
         )
 
         try:
-            async with self.session.get(HORARIOS_URL) as response:
+            async with self.session.get(self.horarios_url) as response:
                 response.raise_for_status()
-                print(f"✓ Conexión exitosa. Status: {response.status}")
+                print(
+                    f"✓ Conexión exitosa al semestre {self.semester}. Status: {response.status}"
+                )
         except Exception as e:
             await self.close_session()
-            raise Exception(f"Error al configurar sesión: {str(e)}")
+            raise Exception(
+                f"Error al configurar sesión para semestre {self.semester}: {str(e)}"
+            )
 
     async def close_session(self):
         if self.session:
@@ -107,6 +113,7 @@ class CourseProcessor:
             "days": cols[7].text.strip() if len(cols) > 7 else "",
             "professor": cols[8].text.strip() if len(cols) > 8 else "",
             "teaching_assistant": cols[9].text.strip() if len(cols) > 9 else "",
+            "semester": self.semester,
             "has_restrictions": restriction_button is not None,
             "restriction_params": restriction_params,
             "restrictions": None,
@@ -116,8 +123,8 @@ class CourseProcessor:
 
     async def get_courses(self) -> List[Dict]:
         try:
-            print("Descargando página de horarios...")
-            async with self.session.get(HORARIOS_URL) as response:
+            print(f"Descargando página de horarios del semestre {self.semester}...")
+            async with self.session.get(self.horarios_url) as response:
                 response.raise_for_status()
                 html_content = await response.text()
 
@@ -139,20 +146,22 @@ class CourseProcessor:
 
                 courses.extend(table_courses)
 
-            print(f"Total de cursos extraídos: {len(courses)}")
+            print(
+                f"Total de cursos extraídos del semestre {self.semester}: {len(courses)}"
+            )
             return courses
 
         except asyncio.TimeoutError:
-            print("Error: Timeout al obtener cursos")
+            print(f"Error: Timeout al obtener cursos del semestre {self.semester}")
             return []
         except Exception as e:
-            print(f"Error al obtener cursos: {str(e)}")
+            print(f"Error al obtener cursos del semestre {self.semester}: {str(e)}")
             return []
 
     async def get_restriction_text(
         self, course_code: str, section: str, year: str, period: str
     ) -> List[str]:
-        cache_key = f"{course_code}-{section}-{year}-{period}"
+        cache_key = f"{course_code}-{section}-{year}-{period}-S{self.semester}"
 
         if cache_key in RESTRICTIONS_CACHE:
             return RESTRICTIONS_CACHE[cache_key]
@@ -179,11 +188,11 @@ class CourseProcessor:
                         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                         "X-Requested-With": "XMLHttpRequest",
                         "Origin": BASE,
-                        "Referer": HORARIOS_URL,
+                        "Referer": self.horarios_url,
                     }
 
                     async with self.session.post(
-                        RESTRICCIONES_URL, data=data, headers=headers
+                        self.restricciones_url, data=data, headers=headers
                     ) as response:
                         response.raise_for_status()
                         html_content = await response.text()
@@ -232,7 +241,6 @@ class CourseProcessor:
         return result
 
     async def process_course(self, course: Dict) -> Dict:
-        """Procesa un curso individual para obtener sus restricciones"""
         if not course["has_restrictions"] or not course["restriction_params"]:
             course["restrictions"] = ["No tiene restricciones"]
             return course
@@ -256,7 +264,6 @@ class CourseProcessor:
     async def process_all_courses(
         self, courses: List[Dict], skip_restrictions: bool = False
     ) -> List[Dict]:
-        """Procesa todos los cursos de manera asíncrona"""
         if skip_restrictions:
             print("Omitiendo descarga de restricciones...")
             for course in courses:
@@ -267,14 +274,13 @@ class CourseProcessor:
         total = len(courses_with_restrictions)
 
         print(
-            f"Procesando {total} cursos con restricciones usando {self.semaphore._value} conexiones concurrentes..."
+            f"Procesando {total} cursos con restricciones del semestre {self.semester} usando {self.semaphore._value} conexiones concurrentes..."
         )
 
         if total > 0:
             tasks = [
                 self.process_course(course) for course in courses_with_restrictions
             ]
-
             batch_size = 20
             processed_courses = []
 
@@ -291,7 +297,9 @@ class CourseProcessor:
                     else:
                         processed_courses.append(result)
 
-                print(f"Procesados {min(i + batch_size, total)}/{total} cursos...")
+                print(
+                    f"Procesados {min(i + batch_size, total)}/{total} cursos del semestre {self.semester}..."
+                )
 
             processed_dict = {
                 f"{course['course_code']}-{course['section']}": course["restrictions"]
@@ -305,7 +313,9 @@ class CourseProcessor:
                 elif not course["has_restrictions"]:
                     course["restrictions"] = ["Sin restricciones"]
         else:
-            print("No se encontraron cursos con restricciones.")
+            print(
+                f"No se encontraron cursos con restricciones en el semestre {self.semester}."
+            )
             for course in courses:
                 course["restrictions"] = ["Sin restricciones"]
 
@@ -314,13 +324,20 @@ class CourseProcessor:
 
 async def main():
     parser = argparse.ArgumentParser(
-        description="Scrapea información de cursos y restricciones (versión asíncrona optimizada)"
+        description="Scrapea información de cursos y restricciones con soporte para ambos semestres"
     )
     parser.add_argument(
         "--output",
         type=str,
         default="public/schedules.json",
         help="Nombre del archivo de salida",
+    )
+    parser.add_argument(
+        "--semester",
+        type=int,
+        choices=[1, 2],
+        default=1,
+        help="Semestre a scrapear (1 o 2)",
     )
     parser.add_argument(
         "--delay",
@@ -343,21 +360,24 @@ async def main():
     args = parser.parse_args()
 
     start_time = time.time()
-    print("Configurando procesador asíncrono...")
+    semester_name = "Primer Semestre" if args.semester == 1 else "Segundo Semestre"
+    print(f"Configurando procesador asíncrono para {semester_name}...")
 
-    processor = CourseProcessor(max_concurrent=args.concurrent, delay=args.delay)
+    processor = CourseProcessor(
+        semester=args.semester, max_concurrent=args.concurrent, delay=args.delay
+    )
 
     try:
         await processor.setup_session()
 
-        print("Obteniendo lista de cursos...")
+        print(f"Obteniendo lista de cursos del {semester_name}...")
         courses = await processor.get_courses()
 
         if not courses:
-            print("No se pudieron obtener cursos. Terminando...")
+            print(f"No se pudieron obtener cursos del {semester_name}. Terminando...")
             return
 
-        print(f"Se encontraron {len(courses)} cursos.")
+        print(f"Se encontraron {len(courses)} cursos en el {semester_name}.")
 
         courses = await processor.process_all_courses(courses, args.skip_restrictions)
 
@@ -375,12 +395,22 @@ async def main():
 
         sorted_courses = sorted(courses, key=course_code_to_int)
 
+        output_data = {
+            "metadata": {
+                "semester": args.semester,
+                "semester_name": semester_name,
+                "scraped_at": time.strftime("%Y-%m-%d %H:%M:%S UTC"),
+                "total_courses": len(sorted_courses),
+            },
+            "courses": sorted_courses,
+        }
+
         try:
             with open(args.output, "w", encoding="utf-8") as json_file:
-                json.dump(sorted_courses, json_file, ensure_ascii=False, indent=4)
+                json.dump(output_data, json_file, ensure_ascii=False, indent=2)
 
             elapsed_time = time.time() - start_time
-            print(f"✓ Los datos se han guardado en '{args.output}'")
+            print(f"✓ Los datos del {semester_name} se han guardado en '{args.output}'")
             print(f"✓ Tiempo total: {elapsed_time:.2f} segundos")
             print(f"✓ Cursos procesados: {len(sorted_courses)}")
             print(f"✓ Restricciones en cache: {len(RESTRICTIONS_CACHE)}")
