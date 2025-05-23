@@ -122,8 +122,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r scripts/requirements.txt
 
-      - name: Create public directory
-        run: mkdir -p public
+      - name: Create directory
+        run: mkdir -p src/data
 
       - name: Set semester variables
         id: semester_vars
@@ -144,7 +144,7 @@ jobs:
           start_time=$(date +%s)
 
           python scripts/scrape_schedule.py \
-            --output "public/${{ steps.semester_vars.outputs.output_file }}" \
+            --output "src/data/${{ steps.semester_vars.outputs.output_file }}" \
             --semester ${{ matrix.semester }} \
             --concurrent ${{ env.CONCURRENT_REQUESTS }} \
             --delay ${{ env.REQUEST_DELAY }} || exit_code=$?
@@ -161,7 +161,7 @@ jobs:
 
       - name: Verify output file
         run: |
-          output_file="public/${{ steps.semester_vars.outputs.output_file }}"
+          output_file="src/data/${{ steps.semester_vars.outputs.output_file }}"
 
           if [ ! -f "$output_file" ]; then
             echo "❌ Output file not found: $output_file"
@@ -190,17 +190,17 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: schedules-semester-${{ matrix.semester }}
-          path: public/${{ steps.semester_vars.outputs.output_file }}
+          path: src/data/${{ steps.semester_vars.outputs.output_file }}
           retention-days: 30
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "📚 Update ${{ steps.semester_vars.outputs.semester_name }} schedules [automated]"
-          file_pattern: "public/${{ steps.semester_vars.outputs.output_file }}"
+          file_pattern: "src/data/${{ steps.semester_vars.outputs.output_file }}"
           commit_user_name: "usac-bot"
-          commit_user_email: "bot@usac-schedules.com"
-          commit_author: "USAC Schedule Bot <bot@usac-schedules.com>"
+          commit_user_email: "bot@ricardious.com"
+          commit_author: "USAC Schedule Bot <bot@ricardious.com>"
         id: auto-commit
 
       - name: Set outputs for notification
@@ -293,7 +293,7 @@ jobs:
             </html>
           to: 3049321750116@ingenieria.usac.edu.gt
           from: "USAC Schedule Bot <${{ secrets.MAIL_USERNAME }}>"
-          reply_to: "noreply@usac-schedules.com"
+          reply_to: "noreply@ricardious.com"
 
   cleanup:
     needs: [determine-strategy, scrape-schedules, notify]
