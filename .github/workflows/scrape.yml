@@ -1,42 +1,309 @@
 name: Scrape USAC schedules
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+    inputs:
+      semester:
+        description: "Semester to scrape (1, 2, or both)"
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - "auto"
+          - "1"
+          - "2"
+          - "both"
+  schedule:
+    # Enero - Primer semestre
+    - cron: "0 6 1 1 *"
+    # Julio - Segundo semestre
+    - cron: "0 6 1 7 *"
+    # Período de transición
+    - cron: "0 6 15 5 *"
+    - cron: "0 6 15 11 *"
+
+env:
+  PYTHON_VERSION: "3.11"
+  CONCURRENT_REQUESTS: 10
+  REQUEST_DELAY: 0.1
 
 jobs:
-  build:
+  determine-strategy:
     runs-on: ubuntu-latest
+    outputs:
+      strategy: ${{ steps.determine.outputs.strategy }}
+      semester1: ${{ steps.determine.outputs.semester1 }}
+      semester2: ${{ steps.determine.outputs.semester2 }}
+      is_transition: ${{ steps.determine.outputs.is_transition }}
+    steps:
+      - name: Determine scraping strategy
+        id: determine
+        run: |
+          current_month=$(date +%-m)
+          current_day=$(date +%-d)
+
+          echo "Current date: $(date)"
+          echo "Month: $current_month, Day: $current_day"
+
+          # Manual dispatch logic
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            case "${{ github.event.inputs.semester }}" in
+              "1")
+                echo "strategy=single" >> $GITHUB_OUTPUT
+                echo "semester1=true" >> $GITHUB_OUTPUT
+                echo "semester2=false" >> $GITHUB_OUTPUT
+                ;;
+              "2")
+                echo "strategy=single" >> $GITHUB_OUTPUT
+                echo "semester1=false" >> $GITHUB_OUTPUT
+                echo "semester2=true" >> $GITHUB_OUTPUT
+                ;;
+              "both")
+                echo "strategy=both" >> $GITHUB_OUTPUT
+                echo "semester1=true" >> $GITHUB_OUTPUT
+                echo "semester2=true" >> $GITHUB_OUTPUT
+                ;;
+              *)
+                # Auto-determine based on current date
+                if [ $current_month -ge 1 ] && [ $current_month -le 6 ]; then
+                  echo "strategy=single" >> $GITHUB_OUTPUT
+                  echo "semester1=true" >> $GITHUB_OUTPUT
+                  echo "semester2=false" >> $GITHUB_OUTPUT
+                else
+                  echo "strategy=single" >> $GITHUB_OUTPUT
+                  echo "semester1=false" >> $GITHUB_OUTPUT
+                  echo "semester2=true" >> $GITHUB_OUTPUT
+                fi
+                ;;
+            esac
+          else
+            # Scheduled runs logic
+            case "$current_month" in
+              1) # Enero - Primer semestre
+                echo "strategy=single" >> $GITHUB_OUTPUT
+                echo "semester1=true" >> $GITHUB_OUTPUT
+                echo "semester2=false" >> $GITHUB_OUTPUT
+                ;;
+              7) # Julio - Segundo semestre
+                echo "strategy=single" >> $GITHUB_OUTPUT
+                echo "semester1=false" >> $GITHUB_OUTPUT
+                echo "semester2=true" >> $GITHUB_OUTPUT
+                ;;
+              5|11) # Períodos de transición
+                echo "strategy=both" >> $GITHUB_OUTPUT
+                echo "semester1=true" >> $GITHUB_OUTPUT
+                echo "semester2=true" >> $GITHUB_OUTPUT
+                echo "is_transition=true" >> $GITHUB_OUTPUT
+                ;;
+            esac
+          fi
+
+          echo "Strategy: $(cat $GITHUB_OUTPUT | grep strategy | cut -d= -f2)"
+
+  scrape-schedules:
+    needs: determine-strategy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        semester: ${{ fromJSON(format('[{0}{1}]', needs.determine-strategy.outputs.semester1 == 'true' && '"1",' || '', needs.determine-strategy.outputs.semester2 == 'true' && '"2"' || '')) }}
+      fail-fast: false
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
-      - name: Install deps
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r scripts/requirements.txt
+
       - name: Create public directory
         run: mkdir -p public
-      - name: Execute script
-        run: |
-          python scripts/scrape_schedule.py --output public/schedules.json
-      - name: Commit JSON
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Update schedules.json
-        id: auto-commit-action
 
-      - name: Send Email
-        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+      - name: Set semester variables
+        id: semester_vars
+        run: |
+          if [ "${{ matrix.semester }}" = "1" ]; then
+            echo "semester_name=Primer Semestre" >> $GITHUB_OUTPUT
+            echo "output_file=schedules_semester1.json" >> $GITHUB_OUTPUT
+          else
+            echo "semester_name=Segundo Semestre" >> $GITHUB_OUTPUT
+            echo "output_file=schedules_semester2.json" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Execute scraper
+        id: scrape
+        run: |
+          echo "🚀 Scraping ${{ steps.semester_vars.outputs.semester_name }}..."
+
+          start_time=$(date +%s)
+
+          python scripts/scrape_schedule.py \
+            --output "public/${{ steps.semester_vars.outputs.output_file }}" \
+            --semester ${{ matrix.semester }} \
+            --concurrent ${{ env.CONCURRENT_REQUESTS }} \
+            --delay ${{ env.REQUEST_DELAY }} || exit_code=$?
+
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+
+          echo "duration=$duration" >> $GITHUB_OUTPUT
+
+          if [ ${exit_code:-0} -ne 0 ]; then
+            echo "❌ Scraping failed with exit code: ${exit_code:-0}"
+            exit ${exit_code:-1}
+          fi
+
+      - name: Verify output file
+        run: |
+          output_file="public/${{ steps.semester_vars.outputs.output_file }}"
+
+          if [ ! -f "$output_file" ]; then
+            echo "❌ Output file not found: $output_file"
+            exit 1
+          fi
+
+          file_size=$(du -h "$output_file" | cut -f1)
+          course_count=$(jq '. | length' "$output_file" 2>/dev/null || echo "0")
+
+          echo "✅ File created successfully"
+          echo "📁 File size: $file_size"
+          echo "📚 Courses count: $course_count"
+
+          # Validate JSON structure
+          if ! jq empty "$output_file" 2>/dev/null; then
+            echo "❌ Invalid JSON format"
+            exit 1
+          fi
+
+          # Check if file has reasonable content
+          if [ "$course_count" -lt 10 ]; then
+            echo "⚠️ Warning: Low course count ($course_count), please verify"
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: schedules-semester-${{ matrix.semester }}
+          path: public/${{ steps.semester_vars.outputs.output_file }}
+          retention-days: 30
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📚 Update ${{ steps.semester_vars.outputs.semester_name }} schedules [automated]"
+          file_pattern: "public/${{ steps.semester_vars.outputs.output_file }}"
+          commit_user_name: "usac-bot"
+          commit_user_email: "bot@usac-schedules.com"
+          commit_author: "USAC Schedule Bot <bot@usac-schedules.com>"
+        id: auto-commit
+
+      - name: Set outputs for notification
+        id: outputs
+        run: |
+          echo "changes_detected=${{ steps.auto-commit.outputs.changes_detected }}" >> $GITHUB_OUTPUT
+          echo "semester_name=${{ steps.semester_vars.outputs.semester_name }}" >> $GITHUB_OUTPUT
+          echo "output_file=${{ steps.semester_vars.outputs.output_file }}" >> $GITHUB_OUTPUT
+          echo "duration=${{ steps.scrape.outputs.duration }}" >> $GITHUB_OUTPUT
+
+    outputs:
+      changes_detected: ${{ steps.outputs.outputs.changes_detected }}
+      semester_name: ${{ steps.outputs.outputs.semester_name }}
+      output_file: ${{ steps.outputs.outputs.output_file }}
+      duration: ${{ steps.outputs.outputs.duration }}
+
+  notify:
+    needs: [determine-strategy, scrape-schedules]
+    runs-on: ubuntu-latest
+    if: always() && contains(needs.scrape-schedules.outputs.*.changes_detected, 'true')
+    steps:
+      - name: Prepare notification data
+        id: prepare
+        run: |
+          # Get current timestamp
+          timestamp=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+          # Determine notification type
+          if [ "${{ needs.determine-strategy.outputs.is_transition }}" = "true" ]; then
+            echo "notification_type=transition" >> $GITHUB_OUTPUT
+            echo "subject=🔄 Actualización de transición - Horarios USAC" >> $GITHUB_OUTPUT
+          else
+            echo "notification_type=regular" >> $GITHUB_OUTPUT
+            echo "subject=📚 Horarios USAC actualizados" >> $GITHUB_OUTPUT
+          fi
+
+          echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
+
+      - name: Send notification email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
+          secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Schedules updated"
-          body: "The schedules.json file has been updated."
+          subject: ${{ steps.prepare.outputs.subject }}
+          html_body: |
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: #2c3e50; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+                .content { background: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px; }
+                .success { color: #27ae60; font-weight: bold; }
+                .info { background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0; }
+                .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h2>🎓 Actualización de Horarios USAC</h2>
+                </div>
+                <div class="content">
+                  <p class="success">✅ Los horarios han sido actualizados exitosamente</p>
+                  
+                  <div class="info">
+                    <strong>📅 Fecha:</strong> ${{ steps.prepare.outputs.timestamp }}<br>
+                    <strong>🔧 Tipo:</strong> ${{ steps.prepare.outputs.notification_type == 'transition' && 'Actualización de transición' || 'Actualización regular' }}<br>
+                    <strong>⚡ Acción:</strong> ${{ github.event_name == 'workflow_dispatch' && 'Ejecución manual' || 'Ejecución programada' }}
+                  </div>
+
+                  <h3>📊 Resumen de cambios:</h3>
+                  <ul>
+                    ${{ needs.determine-strategy.outputs.semester1 == 'true' && '<li>Primer Semestre: Actualizado</li>' || '' }}
+                    ${{ needs.determine-strategy.outputs.semester2 == 'true' && '<li>Segundo Semestre: Actualizado</li>' || '' }}
+                  </ul>
+
+                  <p><em>Este es un mensaje automático del sistema de scraping de horarios USAC.</em></p>
+                </div>
+                <div class="footer">
+                  <p>🤖 USAC Schedule Bot | Ingeniería</p>
+                </div>
+              </div>
+            </body>
+            </html>
           to: 3049321750116@ingenieria.usac.edu.gt
-          from: "Ingeniería USAC Web Scraper"
-          content_type: text/html
+          from: "USAC Schedule Bot <${{ secrets.MAIL_USERNAME }}>"
+          reply_to: "noreply@usac-schedules.com"
+
+  cleanup:
+    needs: [determine-strategy, scrape-schedules, notify]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Cleanup artifacts (optional)
+        run: |
+          echo "🧹 Workflow completed. Artifacts will be automatically cleaned up after 30 days."
+          echo "📊 Summary:"
+          echo "  - Strategy used: ${{ needs.determine-strategy.outputs.strategy }}"
+          echo "  - Changes detected: ${{ contains(needs.scrape-schedules.outputs.*.changes_detected, 'true') }}"
+          echo "  - Notification sent: ${{ needs.notify.result == 'success' }}"
