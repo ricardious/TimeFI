@@ -1,4 +1,4 @@
-import HeroContent from "../components/organisms/Hero";
+import HeroContent from "@components/organisms/Hero";
 
 const HomeScreen = () => {
   return (
