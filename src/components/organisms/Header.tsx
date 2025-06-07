@@ -62,21 +62,19 @@ const Header: React.FC = () => {
           rel="noopener noreferrer"
           className="transition-all duration-300 hover:scale-110 active:scale-95"
         >
-          <SvgIcon
-            name="github"
-            size="md"
-            className="text-[#24292f] dark:text-white"
-          />
+          <SvgIcon name="github" size="md" className="text-current" />
         </Link>
-
         <Link
           to={routesConstants.ROOT}
-          className="hidden lg:flex items-center gap-3 px-10 py-2.5 border border-gray-500 rounded-full ml-4"
+          className="hidden lg:flex items-center gap-3 px-10 py-2.5 border border-gray-500 rounded-full ml-4 transition-all duration-300 hover:border-gray-400 hover:shadow-lg hover:scale-105 active:scale-95 group"
         >
           Ingresar
-          <SvgIcon name="arrow-up-right" size="sm" className="text-current" />
+          <SvgIcon
+            name="arrow-up-right"
+            size="sm"
+            className="text-current transition-transform duration-300 group-hover:scale-110"
+          />
         </Link>
-
         <button className="block md:hidden ml-3" onClick={openMenu}>
           <SvgIcon name="menu" size="md" className="text-current" />
         </button>
