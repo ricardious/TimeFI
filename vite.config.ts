@@ -18,6 +18,9 @@ export default defineConfig({
       "@organisms": path.resolve(__dirname, "./src/components/organisms"),
       "@templates": path.resolve(__dirname, "./src/components/templates"),
 
+      // Pages
+      "@pages": path.resolve(__dirname, "./src/pages"),
+
       // Logic
       "@lib": path.resolve(__dirname, "./src/lib"),
       "@constants": path.resolve(__dirname, "./src/lib/constants"),
@@ -34,7 +37,7 @@ export default defineConfig({
 
       // Routes
       "@routes": path.resolve(__dirname, "./src/routes"),
-      
+
       // Styles
       "@styles": path.resolve(__dirname, "./src/styles"),
     },
