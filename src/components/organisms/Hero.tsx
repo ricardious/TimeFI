@@ -5,8 +5,8 @@ import {
   staggerContainer,
 } from "@lib/helpers/motion";
 import GradientTitle from "@atoms/GradientTitle";
-import WelcomeBadge from "@molecules/WelcomeBadge";
 import CTAButton from "@atoms/CTAButton";
+import WelcomeBadge from "@molecules/WelcomeBadge";
 
 const HeroContent = () => {
   return (
@@ -14,6 +14,7 @@ const HeroContent = () => {
       initial="hidden"
       animate="visible"
       variants={staggerContainer}
+      id="home"
       className="h-screen flex flex-col items-center justify-center px-4 md:px-8 lg:px-20 pt-20 w-full z-[20] dark:bg-transparent bg-transparent"
     >
       {/* Text Content Section */}

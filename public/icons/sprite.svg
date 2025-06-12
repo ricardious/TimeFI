@@ -36,4 +36,106 @@
             d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5m9-3a.75.75 0 0 1 .728.568l.258 1.036a2.63 2.63 0 0 0 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258a2.63 2.63 0 0 0-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.63 2.63 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.63 2.63 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5M16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395a1.5 1.5 0 0 0-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395a1.5 1.5 0 0 0 .948-.948l.395-1.183A.75.75 0 0 1 16.5 15"
             clip-rule="evenodd" />
     </symbol>
+    <symbol id="calendar-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 2v4m8-4v4" />
+        <rect width="18" height="18" x="3" y="4" rx="2" />
+        <path d="M3 10h18M9 16l2 2 4-4" />
+    </symbol>
+    <symbol id="write-book" viewBox="-0.5 -0.5 24 24">
+        <path d="M1.438 17.902h6.401a3.66 3.66 0 0 1 3.661 3.66H1.438z" fill="none" stroke="currentColor"
+            stroke-width="1.5" stroke-miterlimit="10" />
+        <path d="M15.16 17.902h6.403v3.66H11.5a3.66 3.66 0 0 1 3.66-3.66Z" fill="none" stroke="currentColor"
+            stroke-width="1.5" stroke-miterlimit="10" />
+        <path d="M1.438 6.009h6.401a3.66 3.66 0 0 1 3.661 3.66v11.894H1.438z" fill="none" stroke="currentColor"
+            stroke-width="1.5" stroke-miterlimit="10" />
+        <path d="M18.822 6.009h2.74v15.554H11.5V9.67a3.66 3.66 0 0 1 3.66-3.661" fill="none" stroke="currentColor"
+            stroke-width="1.5" stroke-miterlimit="10" />
+        <path d="m18.822 12.458-1.83 1.83-1.831-1.83v-9.19a1.82 1.82 0 0 1 1.83-1.83 1.83 1.83 0 0 1 1.83 1.83Z"
+            fill="none" stroke="currentColor" stroke-miterlimit="10" />
+    </symbol>
+    <symbol id="graph-bar-increase" fill="none" viewBox="0 0 14 14">
+        <path
+            d="m1.24 6.54 11.5-5.23M10.59.5l2.15.81-.8 2.15m1.31 10.04h-2.5v-7a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 .5.5zm-5 0h-2.5V8a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 .5.5zm-5 0H.75v-4a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 .5.5z"
+            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="m9 12 2 2 4-4" />
+    </symbol>
+    <symbol id="star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path
+            d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.12 2.12 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.12 2.12 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.12 2.12 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.12 2.12 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.12 2.12 0 0 0 1.597-1.16z" />
+    </symbol>
+    <symbol id="crystal-ball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="M6.73 17.018a8 8 0 1 1 10.54 0" stroke-width="2" />
+        <path d="M5 19a2 2 0 0 0 2 2h10a2 2 0 1 0 0-4H7a2 2 0 0 0-2 2m6-12a3 3 0 0 0-3 3" stroke-width="2" />
+    </symbol>
+    <symbol id="user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+    </symbol>
+    <symbol id="cloud-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 13v8m-8-6.101A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+        <path d="m8 17 4-4 4 4" />
+    </symbol>
+    <symbol id="bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path
+            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16" />
+        <circle cx="12" cy="12" r="4" />
+    </symbol>
+    <symbol id="telescope" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path
+            d="m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44m-2.875 6.493 4.332-.924M16 21l-3.105-6.21" />
+        <path
+            d="M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455zM6.158 8.633l1.114 4.456M8 21l3.105-6.21" />
+        <circle cx="12" cy="13" r="2" />
+    </symbol>
+    <symbol id="circle-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3m.08 4h.01" />
+    </symbol>
+    <symbol id="definition-search-book" fill="none" viewBox="0 0 14 14">
+        <path
+            d="M13.486 5.993V1.68c0-.43-.274-.819-.693-.916C10.81.303 8.448.527 7 1.492v4.5m0-4.5C5.552.527 3.19.303 1.207.765c-.42.097-.693.485-.693.916v8.234c0 .34.335.583.667.504 1.265-.298 2.686-.318 3.928-.042m8.29 3.032-1.187-1.187m-2.062.687c1.76 0 2.75-.99 2.75-2.75s-.99-2.75-2.75-2.75-2.75.99-2.75 2.75.99 2.75 2.75 2.75"
+            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5" />
+        <rect x="2" y="6" width="14" height="12" rx="2" />
+    </symbol>
+    <symbol id="customer-support" fill="none" viewBox="0 0 14 14">
+        <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path
+                d="M6.502 5.004V.75M7 8.965c1 1 3 2.035 5.5 2.035m-9.783 2.491.001-.826c.003-.79-.173-1.576-.589-2.249C1.374 9.194.75 8.392.75 6c0-2.222.792-3.738 2.244-4.55m8.636 7.775V8.62l.785-.02a.8.8 0 0 0 .658-.342c.515-.735-1.584-2.517-1.733-3.588-.235-1.686-1.103-2.737-2.288-3.322M8.735 12.25v1.241" />
+            <path d="M6.502 9c1.28 0 2-.72 2-2s-.72-2-2-2-2 .72-2 2 .72 2 2 2" />
+        </g>
+    </symbol>
+    <symbol id="chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6" />
+    </symbol>
+    <symbol id="search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="m21 21-4.34-4.34" />
+        <circle cx="11" cy="11" r="8" />
+    </symbol>
+    <symbol id="mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+    </symbol>
+    <symbol id="message-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+    </symbol>
 </svg>

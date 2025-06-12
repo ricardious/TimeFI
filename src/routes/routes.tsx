@@ -1,7 +1,10 @@
 import { createBrowserRouter, RouteObject } from "react-router-dom";
 import routesConstants from "@lib/constants/routeConstants";
 import LayoutContainer from "@components/templates/LayoutContainer";
-import Home from "../pages/HomeScreen";
+import Home from "@pages/HomePage";
+import LegalLayout from "@components/templates/LegalLayout";
+import PrivacyPage from "@/pages/PrivacyPage";
+import TermsPage from "@/pages/TermsPage";
 
 const routes: RouteObject[] = [
   {
@@ -11,6 +14,20 @@ const routes: RouteObject[] = [
       {
         index: true,
         element: <Home />,
+      },
+    ],
+  },
+  {
+    path: "/legal",
+    element: <LegalLayout />,
+    children: [
+      {
+        path: "privacy",
+        element: <PrivacyPage />,
+      },
+      {
+        path: "terms",
+        element: <TermsPage />,
       },
     ],
   },

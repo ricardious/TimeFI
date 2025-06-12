@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "@organisms/Header";
 import StarsCanvas from "@atoms/StarBackground";
+import Footer from "../organisms/Footer";
 
 const LayoutContainer: React.FC = () => {
   return (
@@ -11,6 +12,7 @@ const LayoutContainer: React.FC = () => {
         <main className="relative z-0 flex-grow">
           <Outlet />
         </main>
+        <Footer />
       </div>
     </>
   );
